@@ -1,9 +1,9 @@
-// Copyright 2014-2015, Renasar Technologies Inc.
+// Copyright 2015, Renasar Technologies Inc.
 /* jshint node: true */
 
 "use strict";
 
-before('DHCP server before', function() {
+before('DHCP MessageHandler before', function() {
     helper.setupInjector(
         [
             helper.require('/lib/message-handler'),
