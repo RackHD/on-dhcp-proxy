@@ -3,21 +3,21 @@
 
 "use strict";
 
-before('DHCP MessageHandler before', function() {
-    helper.setupInjector(
-        [
-            helper.require('/lib/message-handler'),
-            helper.require('/lib/packet'),
-            helper.require('/lib/parser'),
-            helper.require('/lib/dhcp-protocol'),
-            helper.di.simpleWrapper({ dhcpCache: {} }, 'Services.LookupCache')
-        ]
-    );
-    var Logger = helper.injector.get('Logger');
-    Logger.prototype.log = sinon.stub();
-});
-
 describe("MessageHandler", function() {
+    before('DHCP MessageHandler before', function() {
+        helper.setupInjector(
+            [
+                helper.require('/lib/message-handler'),
+                helper.require('/lib/packet'),
+                helper.require('/lib/parser'),
+                helper.require('/lib/dhcp-protocol'),
+                helper.di.simpleWrapper({ dhcpCache: {} }, 'Services.LookupCache')
+            ]
+        );
+        var Logger = helper.injector.get('Logger');
+        Logger.prototype.log = sinon.stub();
+    });
+
     var messageHandler;
     var packetData;
     var testnodeid = 'testnodeid';
@@ -490,7 +490,7 @@ describe("MessageHandler", function() {
 
             return messageHandler.handleDhcpPacket(null, stubCallback)
             .then(function() {
-                expect(packetUtil.createProxyDhcpAck).to.have.been.calledWith(bootfile);
+                expect(packetUtil.createProxyDhcpAck).to.have.been.calledWith(packetData, bootfile);
                 expect(stubCallback).to.have.been.calledWith({ fname: bootfile });
             });
         });

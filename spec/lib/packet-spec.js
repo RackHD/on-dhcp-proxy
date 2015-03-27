@@ -3,46 +3,45 @@
 
 "use strict";
 
-var testPacket = {
-    op: { value: 1, name: 'BOOTPREQUEST' },
-    hlen: 6,
-    hops: 0,
-    xid: 681302462,
-    secs: 4,
-    flags: 0,
-    ciaddr: '10.1.1.11',
-    chaddr: {
-        type: { value: 1, name: 'HW_ETHERNET' },
-        address: '08:00:27:9b:d9:be'
-    },
-    sname: '',
-    fname: '',
-    magic: 1669485411,
-    options:
-    {
-        dhcpMessageType: { value: 3, name: 'DHCPREQUEST' },
-        parameterRequestList:
-       [ 1, 2, 3, 4, 5, 6, 11, 12, 13, 15, 16, 17, 18, 22, 23, 28, 40, 41, 42, 43,
-         50, 51, 54, 58, 59, 60, 66, 67, 128, 129, 130, 131, 132, 133, 134, 135 ],
-    maximumMessageSize: 1260,
-    vendorClassIdentifier: 'PXEClient:Arch:00000:UNDI:002001' }
-};
-
-before('DHCP packet before', function() {
-    helper.setupInjector(
-        [
-            helper.require('/lib/packet'),
-            helper.require('/lib/dhcp-protocol')
-        ]
-    );
-    var Logger = helper.injector.get('Logger');
-    Logger.prototype.log = sinon.stub();
-});
-
 describe("Packet", function() {
     var packetUtil;
     var configuration;
     var protocol;
+    var testPacket = {
+        op: { value: 1, name: 'BOOTPREQUEST' },
+        hlen: 6,
+        hops: 0,
+        xid: 681302462,
+        secs: 4,
+        flags: 0,
+        ciaddr: '10.1.1.11',
+        chaddr: {
+            type: { value: 1, name: 'HW_ETHERNET' },
+            address: '08:00:27:9b:d9:be'
+        },
+        sname: '',
+        fname: '',
+        magic: 1669485411,
+        options:
+        {
+            dhcpMessageType: { value: 3, name: 'DHCPREQUEST' },
+            parameterRequestList:
+           [ 1, 2, 3, 4, 5, 6, 11, 12, 13, 15, 16, 17, 18, 22, 23, 28, 40, 41, 42, 43,
+             50, 51, 54, 58, 59, 60, 66, 67, 128, 129, 130, 131, 132, 133, 134, 135 ],
+        maximumMessageSize: 1260,
+        vendorClassIdentifier: 'PXEClient:Arch:00000:UNDI:002001' }
+    };
+
+    before('DHCP packet before', function() {
+        helper.setupInjector(
+            [
+                helper.require('/lib/packet'),
+                helper.require('/lib/dhcp-protocol')
+            ]
+        );
+        var Logger = helper.injector.get('Logger');
+        Logger.prototype.log = sinon.stub();
+    });
 
     describe("createProxyDhcpAck", function() {
         before("createProxyDhcpAck before", function() {
