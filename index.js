@@ -18,14 +18,16 @@ var di = require('di'),
 
 var server = Server.create(4011, 68, '10.1.1.1', '10.1.1.255');
 
-try {
+server.startCore()
+.then(function() {
     server.start();
     logger.info("Starting Proxy DHCP server on 10.1.1.1:4011");
-} catch (e) {
+})
+.catch(function(e) {
     logger.error("Error starting server", {
         error: e
     });
     process.nextTick(function() {
         process.exit(1);
     });
-}
+});

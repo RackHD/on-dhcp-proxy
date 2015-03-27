@@ -1,0 +1,22 @@
+{
+    "amqp": "amqp://localhost",
+    "port": 514,
+    "verbose": true,
+    "color": true,
+    "server": "10.1.1.1",
+    "gatewayaddr": "10.1.1.1",
+    "broadcastaddr": "10.1.1.255",
+    "subnetmask": "255.255.255.0",
+    "iprange": "10.1.1.0/24",
+    "databasetype": "MEMORY-MONGODB",
+    "dbURI": "mongodb://localhost/pxe",
+    "httpPort": "80",
+    "mongo": {
+        "host": "localhost",
+        "port": 27017,
+        "database": "pxe",
+        "user": "",
+        "password": ""
+    },
+    "statsdPrefix": "dhcpproxy."
+}
