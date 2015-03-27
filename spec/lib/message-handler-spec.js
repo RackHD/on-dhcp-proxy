@@ -445,4 +445,54 @@ describe("MessageHandler", function() {
             return expect(messageHandler.getBootfile(packetData)).to.be.rejectedWith(/Test Error/);
         });
     });
+
+    describe("handleDhcpPacket", function() {
+        var parser;
+        var packetUtil;
+
+        before("MessageHandler.handleDhcpPacket before", function() {
+            packetUtil = helper.injector.get('DHCP.packet');
+            parser = helper.injector.get('DHCP.parser');
+
+            sinon.stub(messageHandler, 'getBootfile');
+            sinon.stub(packetUtil, 'createProxyDhcpAck');
+            sinon.stub(parser, 'parse');
+
+            parser.parse.returns(packetData);
+        });
+
+        beforeEach("MessageHandler.handleDhcpPacket beforeEach", function() {
+            messageHandler.getBootfile.reset();
+            packetUtil.createProxyDhcpAck.reset();
+        });
+
+        after("MessageHandler.handleDhcpPacket after", function() {
+            messageHandler.getBootfile.restore();
+            packetUtil.createProxyDhcpAck.restore();
+            parser.parse.restore();
+        });
+
+        it("should not call the send callback if not bootfile is specified", function() {
+            var stubCallback = sinon.stub();
+            messageHandler.getBootfile.resolves(null);
+
+            return messageHandler.handleDhcpPacket(null, stubCallback)
+            .then(function() {
+                expect(stubCallback).to.not.have.been.called;
+            });
+        });
+
+        it("should call the send callback with a response packet", function() {
+            var stubCallback = sinon.stub();
+            var bootfile = 'testbootfile';
+            packetUtil.createProxyDhcpAck.returns({ fname: bootfile });
+            messageHandler.getBootfile.resolves(bootfile);
+
+            return messageHandler.handleDhcpPacket(null, stubCallback)
+            .then(function() {
+                expect(packetUtil.createProxyDhcpAck).to.have.been.calledWith(bootfile);
+                expect(stubCallback).to.have.been.calledWith({ fname: bootfile });
+            });
+        });
+    });
 });
