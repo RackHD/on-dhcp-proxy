@@ -17,6 +17,7 @@
     "bindings": "~1.2.1",
     "di": "git+ssh://git@hwstashprd01.isus.emc.com:7999/onrack/di.js.git",
     "ipv6": "^3.1.1",
+    "lodash": "^3.6.0",
     "on-core": "git+ssh://git@hwstashprd01.isus.emc.com:7999/onrack/on-core.git"
   },
   "devDependencies": {
@@ -35,6 +36,7 @@
     "sinon": "^1.12.2",
     "sinon-as-promised": "^2.0.3",
     "sinon-chai": "^2.7.0",
+    "supertest": "^0.15.0",
     "xunit-file": "0.0.6"
   }
 }
