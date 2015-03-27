@@ -12,16 +12,19 @@ var di = require('di'),
             core.helper.requireGlob(__dirname + '/lib/**/*.js')
         ])
     ),
+    core = injector.get('Services.Core'),
+    configuration = injector.get('Services.Configuration'),
     Logger = injector.get('Logger'),
     logger = Logger.initialize('Dhcp'),
     Server = injector.get('DHCP.Proxy.Server');
 
-var server = Server.create(4011, 68, '10.1.1.1', '10.1.1.255');
-
-server.startCore()
+core.start()
 .then(function() {
-    server.start();
-    logger.info("Starting Proxy DHCP server on 10.1.1.1:4011");
+    Server.create(
+        configuration.get('dhcpProxyInPort') || 4011,
+        configuration.get('dhcpProxyOutPort') || 68,
+        configuration.get('server')
+    ).start();
 })
 .catch(function(e) {
     logger.error("Error starting server", {
