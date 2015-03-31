@@ -4,6 +4,10 @@
 "use strict";
 
 describe("MessageHandler", function() {
+    var messageHandler;
+    var packetData;
+    var testnodeid = 'testnodeid';
+
     before('DHCP MessageHandler before', function() {
         helper.setupInjector(
             [
@@ -11,18 +15,11 @@ describe("MessageHandler", function() {
                 helper.require('/lib/packet'),
                 helper.require('/lib/parser'),
                 helper.require('/lib/dhcp-protocol'),
-                helper.di.simpleWrapper({ dhcpCache: {} }, 'Services.LookupCache')
+                helper.di.simpleWrapper({ setLeaseByIp: sinon.stub() }, 'DhcpLeaseCache')
             ]
         );
         var Logger = helper.injector.get('Logger');
         Logger.prototype.log = sinon.stub();
-    });
-
-    var messageHandler;
-    var packetData;
-    var testnodeid = 'testnodeid';
-
-    before("MessageHandler before", function() {
         messageHandler = helper.injector.get('DHCP.messageHandler');
     });
 
