@@ -1,0 +1,43 @@
+{
+  "name": "on-proxy-dhcp",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha $(find spec -name '*-spec.js') -R spec --require spec/helper.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@hwstashprd01.isus.emc.com:7999/onrack/on-proxy-dhcp.git"
+  },
+  "author": "",
+  "license": "Proprietary",
+  "gypfile": true,
+  "dependencies": {
+    "bindings": "~1.2.1",
+    "di": "git+ssh://git@hwstashprd01.isus.emc.com:7999/onrack/di.js.git",
+    "ipv6": "^3.1.1",
+    "lodash": "^3.6.0",
+    "on-core": "git+ssh://git@hwstashprd01.isus.emc.com:7999/onrack/on-core.git"
+  },
+  "devDependencies": {
+    "chai": "^2.0.0",
+    "chai-as-promised": "^4.2.0",
+    "grunt": "^0.4.5",
+    "grunt-cli": "^0.1.13",
+    "grunt-contrib-jshint": "^0.11.0",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-mocha-istanbul": "^2.3.1",
+    "grunt-mocha-test": "^0.12.7",
+    "grunt-notify": "^0.4.1",
+    "istanbul": "^0.3.5",
+    "jsdoc": "^3.3.0-alpha13",
+    "jshint": "^2.5.11",
+    "mocha": "^2.1.0",
+    "sinon": "^1.12.2",
+    "sinon-as-promised": "^2.0.3",
+    "sinon-chai": "^2.7.0",
+    "supertest": "^0.15.0",
+    "xunit-file": "0.0.6"
+  }
+}
