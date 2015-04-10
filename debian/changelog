@@ -1,0 +1,5 @@
+on-dhcp-proxy (1.1-1) unstable; urgency=low
+
+  * Initial release
+
+ -- Joe Heck <joseph.heck@emc.com>  Fri, 10 Apr 2015 00:17:50 +0000
