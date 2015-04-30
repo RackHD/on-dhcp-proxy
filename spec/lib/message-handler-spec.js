@@ -4,6 +4,8 @@
 "use strict";
 
 describe("MessageHandler", function() {
+    var lookupService;
+    var Errors;
     var messageHandler;
     var packetData;
     var testnodeid = 'testnodeid';
@@ -14,10 +16,12 @@ describe("MessageHandler", function() {
                 helper.require('/lib/message-handler'),
                 helper.require('/lib/packet'),
                 helper.require('/lib/parser'),
-                helper.require('/lib/dhcp-protocol'),
-                helper.di.simpleWrapper({ setLeaseByIp: sinon.stub() }, 'DhcpLeaseCache')
+                helper.require('/lib/dhcp-protocol')
             ]
         );
+        lookupService = helper.injector.get('Services.Lookup');
+        sinon.stub(lookupService, 'setIpAddress').resolves();
+        Errors = helper.injector.get('Errors');
         var Logger = helper.injector.get('Logger');
         Logger.prototype.log = sinon.stub();
         messageHandler = helper.injector.get('DHCP.messageHandler');
@@ -32,14 +36,16 @@ describe("MessageHandler", function() {
         };
     });
 
+    after("MessageHandler after", function() {
+        lookupService.setIpAddress.restore();
+    });
+
     describe("ActionHandler", function() {
         var actionHandler;
-        var Errors;
         var thrown;
         var nextFn = function () {};
 
         beforeEach("ActionHandler beforeEach", function() {
-            Errors = helper.injector.get('Errors');
             actionHandler = messageHandler.createActionHandler(packetData);
             sinon.stub(actionHandler, 'getDefaultBootfile');
             thrown = false;
@@ -59,7 +65,7 @@ describe("MessageHandler", function() {
             })
             .then(function() {
                 expect(thrown).to.equal(true);
-                return actionHandler.deferred.promise;
+                return actionHandler.deferred;
             })
             .then(function(out) {
                 expect(out).to.equal(testDefaultBootfile);
@@ -79,7 +85,7 @@ describe("MessageHandler", function() {
             })
             .then(function() {
                 expect(thrown).to.equal(true);
-                return actionHandler.deferred.promise;
+                return actionHandler.deferred;
             })
             .then(function(out) {
                 expect(out).to.equal(null);
@@ -115,7 +121,7 @@ describe("MessageHandler", function() {
             })
             .then(function() {
                 expect(thrown).to.equal(true);
-                return actionHandler.deferred.promise;
+                return actionHandler.deferred;
             })
             .then(function(out) {
                 expect(out).to.equal(testDefaultBootfile);
@@ -138,7 +144,7 @@ describe("MessageHandler", function() {
             })
             .then(function() {
                 expect(thrown).to.equal(true);
-                return actionHandler.deferred.promise;
+                return actionHandler.deferred;
             })
             .then(function(out) {
                 expect(out).to.equal(testCustomBootfile);
@@ -150,11 +156,9 @@ describe("MessageHandler", function() {
     });
 
     describe("getNodeAction", function() {
-        var lookupService;
         var Errors;
 
         before("MessageHandler:getNodeAction before", function() {
-            lookupService = helper.injector.get('Services.Lookup');
             Errors = helper.injector.get('Errors');
             sinon.stub(lookupService, 'macAddressToNodeId');
         });
@@ -177,7 +181,7 @@ describe("MessageHandler", function() {
         });
 
         it("should get the node action for a new node", function() {
-            lookupService.macAddressToNodeId.rejects(new Errors.LookupError(''));
+            lookupService.macAddressToNodeId.rejects(new Errors.NotFoundError(''));
 
             return messageHandler.getNodeAction(packetData.chaddr.address)
             .then(function(out) {
