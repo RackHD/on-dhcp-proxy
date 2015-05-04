@@ -12,6 +12,12 @@ To configure isc-dhcp-server on linux, add this line to /etc/default/isc-dhcp-se
 INTERFACES=<interface/s you want to serve DHCP on>
 ```
 
+Now add this option dhcpd.conf for our code to work properly with isc-dhcp (NOTE: this must be above your subnet declaration):
+
+```
+deny duplicates;
+```
+
 Then add your subnet configurations to /etc/dhcp/dhcpd.conf on linux, or /etc/dhcpd.conf on OSX.
 
 ```
@@ -20,12 +26,6 @@ subnet 10.1.1.0 netmask 255.255.255.0 {
   # Use this option to signal to the PXE client that we are doing proxy DHCP
   option vendor-class-identifier "PXEClient";
 }
-```
-
-Finally, add this option dhcpd.conf for our code to work properly with isc-dhcp:
-
-```
-deny duplicates;
 ```
 
 For an example configuration file, see dhcpd.conf in this directory.
