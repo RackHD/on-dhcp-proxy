@@ -6,15 +6,22 @@ running in the background.
 
 To install isc, run `sudo apt-get install isc-dhcp-server`, or on OSX, `brew install isc-dhcp`
 
+NOTE: You must be running version isc-dhcpd-4.3.1 or greater. You can check with:
+
+```
+sudo dhcpd --version
+```
+
 To configure isc-dhcp-server on linux, add this line to /etc/default/isc-dhcp-server (not necessary on OSX):
 
 ```
 INTERFACES=<interface/s you want to serve DHCP on>
 ```
 
-Now add this option dhcpd.conf for our code to work properly with isc-dhcp (NOTE: this must be above your subnet declaration):
+Now add these options to dhcpd.conf for our code to work properly with isc-dhcp (NOTE: this must be above your subnet declaration):
 
 ```
+ignore-client-uids true;
 deny duplicates;
 ```
 
