@@ -40,3 +40,5 @@ node_modules
 
 # Gyp Build
 build
+
+.tmp
