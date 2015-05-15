@@ -320,7 +320,7 @@ describe("MessageHandler", function() {
 
         it("should return the profiles API for an iPXE user class", function() {
             var expectedUrl = 'http://10.1.1.1:80/api/common/profiles';
-            packetData.options.userClass = 'iPXE';
+            packetData.options.userClass = 'MonoRail';
 
             configuration.get.withArgs('server').returns('10.1.1.1');
             configuration.get.withArgs('httpPort').returns('80');
@@ -348,12 +348,12 @@ describe("MessageHandler", function() {
 
         it("should return intel.ipxe for intel mac addresses", function() {
             packetData.chaddr.address = 'ec:a8:6b:00:00:00';
-            expect(messageHandler.getDefaultBootfile(packetData)).to.equal('intel.ipxe');
+            expect(messageHandler.getDefaultBootfile(packetData)).to.equal('monorail.intel.ipxe');
         });
 
         it("should return the default ipxe script if no special cases are met", function() {
             packetData.options.vendorClassIdentifier = 'testVendorClass';
-            expect(messageHandler.getDefaultBootfile(packetData)).to.equal('renasar.ipxe');
+            expect(messageHandler.getDefaultBootfile(packetData)).to.equal('monorail.ipxe');
         });
     });
 
