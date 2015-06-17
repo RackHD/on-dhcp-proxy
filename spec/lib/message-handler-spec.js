@@ -157,31 +157,39 @@ describe("MessageHandler", function() {
 
     describe("getNodeAction", function() {
         var Errors;
+        var node;
 
         before("MessageHandler:getNodeAction before", function() {
             Errors = helper.injector.get('Errors');
-            sinon.stub(lookupService, 'macAddressToNodeId');
+            sinon.stub(lookupService, 'macAddressToNode');
+            node = {
+                discovered: sinon.stub(),
+                id: 'testnodeid'
+            };
         });
 
         beforeEach("MessageHandler:getNodeAction beforeEach", function() {
-            lookupService.macAddressToNodeId.reset();
+            lookupService.macAddressToNode.reset();
+            node.discovered.rejects(new Error('override in test'));
+            node.discovered.reset();
         });
 
         after("MessageHandler:getNodeAction after", function() {
-            lookupService.macAddressToNodeId.restore();
+            lookupService.macAddressToNode.restore();
         });
 
-        it("should call lookupService.macAddressToNodeId with node mac address", function() {
-            lookupService.macAddressToNodeId.resolves('');
+        it("should call lookupService.macAddressToNode with node mac address", function() {
+            node.discovered.resolves(false);
+            lookupService.macAddressToNode.resolves(node);
             return messageHandler.getNodeAction(packetData.chaddr.address)
             .then(function() {
-                expect(lookupService.macAddressToNodeId)
+                expect(lookupService.macAddressToNode)
                     .to.have.been.calledWith(packetData.chaddr.address);
             });
         });
 
         it("should get the node action for a new node", function() {
-            lookupService.macAddressToNodeId.rejects(new Errors.NotFoundError(''));
+            lookupService.macAddressToNode.rejects(new Errors.NotFoundError(''));
 
             return messageHandler.getNodeAction(packetData.chaddr.address)
             .then(function(out) {
@@ -190,7 +198,7 @@ describe("MessageHandler", function() {
         });
 
         it("should ignore a node on an unknown lookup failure", function() {
-            lookupService.macAddressToNodeId.rejects(new Error(''));
+            lookupService.macAddressToNode.rejects(new Error(''));
 
             return messageHandler.getNodeAction(packetData.chaddr.address)
             .then(function(out) {
@@ -198,13 +206,24 @@ describe("MessageHandler", function() {
             });
         });
 
-        it("should get the action for a node if it is determined to be already known", function() {
-            lookupService.macAddressToNodeId.resolves(testnodeid);
+        it("should get the action for a node if it is has already been discovered", function() {
+            node.discovered.resolves(true);
+            lookupService.macAddressToNode.resolves(node);
 
             return messageHandler.getNodeAction(packetData.chaddr.address)
             .then(function(out) {
                 expect(out).to.have.property('action').that.equals('next');
                 expect(out).to.have.property('data').that.equals(testnodeid);
+            });
+        });
+
+        it("should get the action for a known node if it has not been discovered", function() {
+            node.discovered.resolves(false);
+            lookupService.macAddressToNode.resolves(node);
+
+            return messageHandler.getNodeAction(packetData.chaddr.address)
+            .then(function(out) {
+                expect(out).to.have.property('action').that.equals('discover');
             });
         });
     });
