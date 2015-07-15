@@ -341,8 +341,8 @@ describe("MessageHandler", function() {
             var expectedUrl = 'http://10.1.1.1:80/api/common/profiles';
             packetData.options.userClass = 'MonoRail';
 
-            configuration.get.withArgs('server').returns('10.1.1.1');
-            configuration.get.withArgs('httpPort').returns('80');
+            configuration.get.withArgs('apiServerAddress').returns('10.1.1.1');
+            configuration.get.withArgs('apiServerPort').returns('80');
             expect(messageHandler.getDefaultBootfile(packetData)).to.equal(expectedUrl);
         });
 
@@ -351,8 +351,8 @@ describe("MessageHandler", function() {
                 'http://10.1.1.1:80/api/common/profiles?macs=' + packetData.chaddr.address;
             packetData.options.vendorClassIdentifier = 'Arista';
 
-            configuration.get.withArgs('server').returns('10.1.1.1');
-            configuration.get.withArgs('httpPort').returns('80');
+            configuration.get.withArgs('apiServerAddress').returns('10.1.1.1');
+            configuration.get.withArgs('apiServerPort').returns('80');
             expect(messageHandler.getDefaultBootfile(packetData)).to.equal(expectedUrl);
         });
 
@@ -360,8 +360,8 @@ describe("MessageHandler", function() {
             var expectedUrl = 'http://10.1.1.1:80/api/common/profiles';
             packetData.chaddr.address = '00:02:c9:00:00:00';
 
-            configuration.get.withArgs('server').returns('10.1.1.1');
-            configuration.get.withArgs('httpPort').returns('80');
+            configuration.get.withArgs('apiServerAddress').returns('10.1.1.1');
+            configuration.get.withArgs('apiServerPort').returns('80');
             expect(messageHandler.getDefaultBootfile(packetData)).to.equal(expectedUrl);
         });
 
