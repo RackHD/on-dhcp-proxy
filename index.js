@@ -21,9 +21,9 @@ var di = require('di'),
 core.start()
 .then(function() {
     Server.create(
-        configuration.get('dhcpProxyInPort', 4011),
+        configuration.get('dhcpProxyBindPort', 4011),
         configuration.get('dhcpProxyOutPort', 68),
-        configuration.get('server')
+        configuration.get('dhcpProxyBindAddress', '0.0.0.0')
     ).start();
 })
 .catch(function(e) {
