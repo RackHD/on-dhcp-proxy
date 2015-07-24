@@ -23,7 +23,7 @@ core.start()
     Server.create(
         configuration.get('dhcpProxyBindPort', 4011),
         configuration.get('dhcpProxyOutPort', 68),
-        configuration.get('server')
+        configuration.get('dhcpProxyBindAddress', '0.0.0.0')
     ).start();
 })
 .catch(function(e) {
