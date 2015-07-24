@@ -71,7 +71,7 @@ describe("Packet", function() {
 
         it("should create a proper ACK packet for proxyDHCP", function() {
             var testbootfile = 'testbootfile';
-            configuration.get.withArgs('server').returns('10.1.1.1');
+            configuration.get.withArgs('dhcpGateway').returns('10.1.1.1');
             configuration.get.withArgs('broadcastaddr').returns('10.1.1.255');
 
             packetUtil.createProxyDhcpAck(testPacket, testbootfile);
