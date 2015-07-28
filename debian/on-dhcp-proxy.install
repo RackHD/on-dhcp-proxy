@@ -1,5 +1,4 @@
 node_modules /var/renasar/on-dhcp-proxy
 lib /var/renasar/on-dhcp-proxy
 index.js /var/renasar/on-dhcp-proxy
-config.json /var/renasar/on-dhcp-proxy
 commitstring.txt /var/renasar/on-dhcp-proxy
