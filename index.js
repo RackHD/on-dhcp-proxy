@@ -22,7 +22,10 @@ core.start()
 .then(function() {
     Server.create(
         configuration.get('dhcpProxyBindPort', 4011),
-        configuration.get('dhcpProxyOutPort', 68),
+        {
+            LegacyPort: configuration.get('dhcpProxyOutPort', 68),
+            EFIPort: configuration.get('dhcpProxyEFIOutPort', 4011)
+        },
         configuration.get('dhcpProxyBindAddress', '0.0.0.0')
     ).start();
 })
