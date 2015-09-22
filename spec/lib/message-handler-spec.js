@@ -9,6 +9,7 @@ describe("MessageHandler", function() {
     var messageHandler;
     var packetData;
     var testnodeid = 'testnodeid';
+    var Promise;
 
     before('DHCP MessageHandler before', function() {
         helper.setupInjector(
@@ -23,6 +24,7 @@ describe("MessageHandler", function() {
         sinon.stub(lookupService, 'setIpAddress').resolves();
         Errors = helper.injector.get('Errors');
         var Logger = helper.injector.get('Logger');
+        Promise = helper.injector.get('Promise');
         Logger.prototype.log = sinon.stub();
         messageHandler = helper.injector.get('DHCP.messageHandler');
     });
@@ -55,7 +57,7 @@ describe("MessageHandler", function() {
             var testDefaultBootfile = 'test-default-bootfile';
             actionHandler.getDefaultBootfile.returns(testDefaultBootfile);
 
-            return Q.resolve()
+            return Promise.resolve()
             .then(function() {
                 return actionHandler.handleAction(nextFn, 'discover', undefined);
             })
@@ -75,7 +77,7 @@ describe("MessageHandler", function() {
         });
 
         it("should do nothing on ignore action", function() {
-            return Q.resolve()
+            return Promise.resolve()
             .then(function() {
                 return actionHandler.handleAction(nextFn, 'ignore', undefined);
             })
@@ -97,7 +99,7 @@ describe("MessageHandler", function() {
             var nextStub = sinon.stub().resolves(nextOut);
             var data = 'testdata';
 
-            return Q.resolve()
+            return Promise.resolve()
             .then(function() {
                 return actionHandler.handleAction(nextStub, 'next', data);
             })
@@ -111,7 +113,7 @@ describe("MessageHandler", function() {
             var testDefaultBootfile = 'test-default-bootfile';
             actionHandler.getDefaultBootfile.returns(testDefaultBootfile);
 
-            return Q.resolve()
+            return Promise.resolve()
             .then(function() {
                 return actionHandler.handleAction(nextFn, 'send-default-bootfile', undefined);
             })
@@ -133,7 +135,7 @@ describe("MessageHandler", function() {
         it("should resolve task-specified bootfile on send-custom-bootfile action", function() {
             var testCustomBootfile = 'test-custom-bootfile';
 
-            return Q.resolve()
+            return Promise.resolve()
             .then(function() {
                 return actionHandler.handleAction(
                     nextFn, 'send-custom-bootfile', testCustomBootfile);
