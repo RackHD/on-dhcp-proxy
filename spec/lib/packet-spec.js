@@ -112,7 +112,7 @@ describe("Packet", function() {
                     type: { value: 1, name: 'HW_ETHERNET' },
                     address: '08:00:27:9b:d9:be'
                 },
-                sname: 'this is too long..................................................'
+                sname: 65
             };
 
             expect(function() {
@@ -128,8 +128,7 @@ describe("Packet", function() {
                     address: '08:00:27:9b:d9:be'
                 },
                 sname: '',
-                fname: 'this is too long..................................................' +
-                       'this is too long..................................................'
+                fname: 129
             };
 
             expect(function() {
@@ -148,7 +147,8 @@ describe("Packet", function() {
             }).to.throw(Error);
         });
 
-        it("should thow an error if the packet chaddr is an object type with no 'address' key", function() {
+        it("should thow an error if the packet chaddr is an object type with " +
+            "no 'address' key", function() {
             var pkt  = {
                 xid: 681302462,
                 chaddr: {
@@ -161,7 +161,7 @@ describe("Packet", function() {
             }).to.throw(Error);
         });
 
-        it("should parse the options", function() {
+        it("should parse the options into the buffer", function() {
             var pkt = {
                 xid: 681302462,
                 chaddr: {
@@ -184,19 +184,35 @@ describe("Packet", function() {
                     renewalTimeValue: 200,                  //option 58
                     rebindingTimeValue: 300,                //option 59
                     vendorClassIdentifier: 'PXEClient:Arch:00000:UNDI:002001',   //option 60
-                    clientIdentifier: '100.100', //option 61
-                    bootFileName: 'bootfilename', //option 67
+                    clientIdentifier: '100.100',            //option 61
+                    bootFileName: 'bootfilename',           //option 67
                     maximumMessageSize: 1260
                 }
             };
 
-            var p = packetUtil.createPacketBuffer(pkt);
-            console.log(p);
-            console.log(p.length);
+            var buf = packetUtil.createPacketBuffer(pkt);
+
+            expect(buf).to.be.a('object');
+            expect(buf.length).to.be.above(300);
         });
 
+        it("should parse no options", function() {
+            var pkt = {
+                xid: 681302462,
+                chaddr: {
+                    type: { value: 1, name: 'HW_ETHERNET' },
+                    address: '08:00:27:9b:d9:be'
+                }
+            };
 
-        it("should throw an error when the option parameterRequestList length is great than 0xff", function() {
+            var buf = packetUtil.createPacketBuffer(pkt);
+
+            expect(buf).to.be.a('object');
+            expect(buf.length).to.be.equal(300);
+        });
+
+        it("should throw an error when the option parameterRequestList length is great " +
+            "than 0xff", function() {
             var pkt  = {
                 xid: 681302462,
                 chaddr: {
@@ -214,7 +230,8 @@ describe("Packet", function() {
             }).to.throw(Error);
         });
 
-        it("should throw an error when the option clientIdentifierlength is great than 0xff", function() {
+        it("should throw an error when the option clientIdentifierlength is great " +
+            "than 0xff", function() {
             var pkt  = {
                 xid: 681302462,
                 chaddr: {
