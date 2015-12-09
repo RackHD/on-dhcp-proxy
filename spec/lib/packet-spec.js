@@ -176,11 +176,12 @@ describe("Packet", function() {
                     requestedIpAddress: '192.111.1.100',    //option 50
                     ipAddressLeaseTime: 86400,              //option 51
                     optionOverload: 100,                    //option 52
-                    dhcpMessageType: 0x2,                   //option 53
+                    dhcpMessageType: { value: 3, name: 'DHCPREQUEST' },   //option 53
                     serverIdentifier: '192.111.1.1',        //option 54
                     parameterRequestList:                   //option 55
-                        [ 1, 2, 3, 4, 5, 6, 11, 12, 13, 15, 16, 17, 18, 22, 23, 28, 40, 41, 42, 43,
-                            50, 51, 54, 58, 59, 60, 66, 67, 128, 129, 130, 131, 132, 133, 134, 135 ],
+                        [ 1, 2, 3, 4, 5, 6, 11, 12, 13, 15, 16, 17, 18, 22, 23, 28, 40,
+                            41, 42, 43, 50, 51, 54, 58, 59, 60, 66, 67, 128, 129, 130,
+                            131, 132, 133, 134, 135 ],
                     renewalTimeValue: 200,                  //option 58
                     rebindingTimeValue: 300,                //option 59
                     vendorClassIdentifier: 'PXEClient:Arch:00000:UNDI:002001',   //option 60
