@@ -24,12 +24,13 @@ describe("Packet", function() {
         magic: 1669485411,
         options:
         {
-            dhcpMessageType: { value: 3, name: 'DHCPREQUEST' },
+            dhcpMessageType: 0x2,
             parameterRequestList:
            [ 1, 2, 3, 4, 5, 6, 11, 12, 13, 15, 16, 17, 18, 22, 23, 28, 40, 41, 42, 43,
              50, 51, 54, 58, 59, 60, 66, 67, 128, 129, 130, 131, 132, 133, 134, 135 ],
-        maximumMessageSize: 1260,
-        vendorClassIdentifier: 'PXEClient:Arch:00000:UNDI:002001' }
+            maximumMessageSize: 1260,
+            vendorClassIdentifier: 'PXEClient:Arch:00000:UNDI:002001'
+        }
     };
 
     before('DHCP packet before', function() {
@@ -41,13 +42,13 @@ describe("Packet", function() {
         );
         var Logger = helper.injector.get('Logger');
         Logger.prototype.log = sinon.stub();
+
+        packetUtil = helper.injector.get('DHCP.packet');
+        protocol = helper.injector.get('DHCP.protocol');
     });
 
     describe("createProxyDhcpAck", function() {
         before("createProxyDhcpAck before", function() {
-            protocol = helper.injector.get('DHCP.protocol');
-
-            packetUtil = helper.injector.get('DHCP.packet');
             sinon.spy(packetUtil, 'createPacketBuffer');
 
             configuration = helper.injector.get('Services.Configuration');
@@ -85,5 +86,151 @@ describe("Packet", function() {
             expect(options).to.have.property('dhcpMessageType')
                 .that.equals(protocol.DHCPMessageType.DHCPACK.value);
         });
+    });
+
+    describe("createPacketBuffer", function() {
+        it("should throw an error if the packet does not have xid", function() {
+            var pkt = {};
+
+            expect(function() {
+                packetUtil.createPacketBuffer(pkt);
+            }).to.throw(Error);
+        });
+
+        it("should throw an error if the packet does not have chaddr", function() {
+            var pkt = {xid: 681302462};
+
+            expect(function() {
+                packetUtil.createPacketBuffer(pkt);
+            }).to.throw(Error);
+        });
+
+        it("should throw an error if the packet sname is greater than 64", function() {
+            var pkt  = {
+                xid: 681302462,
+                chaddr: {
+                    type: { value: 1, name: 'HW_ETHERNET' },
+                    address: '08:00:27:9b:d9:be'
+                },
+                sname: 'this is too long..................................................'
+            };
+
+            expect(function() {
+                packetUtil.createPacketBuffer(pkt);
+            }).to.throw(Error);
+        });
+
+        it("should throw an error if the packet fname is greater than 128", function() {
+            var pkt  = {
+                xid: 681302462,
+                chaddr: {
+                    type: { value: 1, name: 'HW_ETHERNET' },
+                    address: '08:00:27:9b:d9:be'
+                },
+                sname: '',
+                fname: 'this is too long..................................................' +
+                       'this is too long..................................................'
+            };
+
+            expect(function() {
+                packetUtil.createPacketBuffer(pkt);
+            }).to.throw(Error);
+        });
+
+        it("should throw an error if the packet chaddr hw buffer does not equal 6 ':'", function() {
+            var pkt  = {
+                xid: 681302462,
+                chaddr: "123"
+            };
+
+            expect(function() {
+                packetUtil.createPacketBuffer(pkt);
+            }).to.throw(Error);
+        });
+
+        it("should thow an error if the packet chaddr is an object type with no 'address' key", function() {
+            var pkt  = {
+                xid: 681302462,
+                chaddr: {
+                    type: { value: 1, name: 'HW_ETHERNET' }
+                }
+            };
+
+            expect(function() {
+                packetUtil.createPacketBuffer(pkt);
+            }).to.throw(Error);
+        });
+
+        it("should parse the options", function() {
+            var pkt = {
+                xid: 681302462,
+                chaddr: {
+                    type: { value: 1, name: 'HW_ETHERNET' },
+                    address: '08:00:27:9b:d9:be'
+                },
+                options:
+                {
+                    subnetMask: '0.0.0.0',                  //option 1
+                    routerOptions: 'test string',           //option 3
+                    broadcastAddress: '255.255.255.255',    //option 28
+                    requestedIpAddress: '192.111.1.100',    //option 50
+                    ipAddressLeaseTime: 86400,              //option 51
+                    optionOverload: 100,                    //option 52
+                    dhcpMessageType: 0x2,                   //option 53
+                    serverIdentifier: '192.111.1.1',        //option 54
+                    parameterRequestList:                   //option 55
+                        [ 1, 2, 3, 4, 5, 6, 11, 12, 13, 15, 16, 17, 18, 22, 23, 28, 40, 41, 42, 43,
+                            50, 51, 54, 58, 59, 60, 66, 67, 128, 129, 130, 131, 132, 133, 134, 135 ],
+                    renewalTimeValue: 200,                  //option 58
+                    rebindingTimeValue: 300,                //option 59
+                    vendorClassIdentifier: 'PXEClient:Arch:00000:UNDI:002001',   //option 60
+                    clientIdentifier: '100.100', //option 61
+                    bootFileName: 'bootfilename', //option 67
+                    maximumMessageSize: 1260
+                }
+            };
+
+            var p = packetUtil.createPacketBuffer(pkt);
+            console.log(p);
+            console.log(p.length);
+        });
+
+
+        it("should throw an error when the option parameterRequestList length is great than 0xff", function() {
+            var pkt  = {
+                xid: 681302462,
+                chaddr: {
+                    type: { value: 1, name: 'HW_ETHERNET' },
+                    address: '08:00:27:9b:d9:be'
+                },
+                options:
+                {
+                    parameterRequestList: 0xFFFF
+                }
+            };
+
+            expect(function() {
+                packetUtil.createPacketBuffer(pkt);
+            }).to.throw(Error);
+        });
+
+        it("should throw an error when the option clientIdentifierlength is great than 0xff", function() {
+            var pkt  = {
+                xid: 681302462,
+                chaddr: {
+                    type: { value: 1, name: 'HW_ETHERNET' },
+                    address: '08:00:27:9b:d9:be'
+                },
+                options:
+                {
+                    clientIdentifier: 0xFFFF
+                }
+            };
+
+            expect(function() {
+                packetUtil.createPacketBuffer(pkt);
+            }).to.throw(Error);
+        });
+
     });
 });
