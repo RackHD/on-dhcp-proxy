@@ -15,5 +15,7 @@ describe("Dhcp Protocol", function() {
         Logger.prototype.log = sinon.stub();
     });
 
+    it("needs specs");
+
 });
 
