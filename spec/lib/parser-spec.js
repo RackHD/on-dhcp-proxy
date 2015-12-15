@@ -9,8 +9,6 @@ describe("Parser", function() {
     var packetDHCP;
     var msg;
     var offset;
-    var spyparser;
-    var util;
 
     before('Parser before', function() {
         helper.setupInjector(
@@ -25,18 +23,18 @@ describe("Parser", function() {
         Logger.prototype.log = sinon.stub();
         parser = helper.injector.get('DHCP.parser');
         packetDHCP = helper.injector.get('DHCP.packet');
-
-        util = require('util');
     });
 
     describe('trimNulls Function', function() {
 
         it("should trim the null from the string", function() {
-            expect(parser.trimNulls("string with null \u0000000100020003")).to.not.contains("\u0000");
+            expect(parser.trimNulls("string with null \u0000000100020003"))
+                .to.not.contains("\u0000");
         });
 
         it("should not trim the string if there is no null", function() {
-            expect(parser.trimNulls("string with not null 0000")).to.equal("string with not null 0000");
+            expect(parser.trimNulls("string with not null 0000"))
+                .to.equal("string with not null 0000");
         });
 
     });
@@ -143,7 +141,8 @@ describe("Parser", function() {
             expect(address).to.be.empty;
         });
 
-        it("should return the address when the length is greater 0 it will add a \':\' to the address", function() {
+        it("should return the address when the length is greater 0 it will " +
+            "add a \':\' to the address", function() {
             msg = new Buffer(2);
             var offset = 0;
             msg[0] = 0x3;
@@ -152,7 +151,7 @@ describe("Parser", function() {
             var address = parser.readAddressRaw(msg, offset, 2);
             expect(address).to.contain(":");
             expect(address.length).to.be.above(0);
-        })
+        });
 
         it("should return the address as a valid IPaddress", function() {
             msg = new Buffer(6);
@@ -167,10 +166,9 @@ describe("Parser", function() {
             var address = parser.readAddressRaw(msg, offset, msg.length);
             expect(address).to.contain(":");
             expect(address).to.equal("13:14:34:24:11:ff");
-        })
+        });
     });
 
-    //there are over 100 case statements in this function
     describe('Parse Function', function() {
 
         var packbuf;
@@ -207,9 +205,10 @@ describe("Parser", function() {
                     domainName: 'domainName',               //option 15
                     broadcastAddress: '255.255.255.255',    //option 28
                     vendorOptions: {                        //option 43
-                        '10': [2,3,4,4],
-                        '220': [2,234,2]
+                        '10': new Buffer('2344'),
+                        '220': new Buffer('234')
                     },
+                    requestedIpAddress: '192.111.1.100',    //option 50
                     ipAddressLeaseTime: 86400,              //option 51
                     optionOverload: 100,                    //option 52
                     dhcpMessageType: { value: 3, name: 'DHCPREQUEST' },   //option 53
@@ -241,9 +240,6 @@ describe("Parser", function() {
             //use the packet.createPacketBuffer() to make this packet into a buff to then parse.
             packbuf = packetDHCP.createPacketBuffer(testPacket);
             parsePack = parser.parse(packbuf);
-
-            console.log("before == "+testPacket);
-            console.log("parsed packert - "+parsePack);
         });
 
         beforeEach("Parse beforeEach", function() {
@@ -316,7 +312,7 @@ describe("Parser", function() {
             expect(parsePack).to.have.property('giaddr');
             expect(parsePack.giaddr).to.be.equal(testPacket.giaddr);
         });
-        
+
         it("should have a packet property chaddr", function() {
             expect(parsePack).to.have.property('chaddr');
             expect(parsePack.chaddr).to.have.property('address');
@@ -342,9 +338,6 @@ describe("Parser", function() {
 
         it("should have a pack property options", function() {
             expect(parsePack).to.have.property('options');
-
-            console.log("test options = "+util.inspect(testPacket.options));
-            console.log("options = "+util.inspect(parsePack.options));
         });
 
         it("should have a packet option subnetMask", function() {       //case 1
@@ -392,7 +385,7 @@ describe("Parser", function() {
 
         it("should have a packet option vendorOptions", function() {       //case 43
             expect(parsePack.options).to.have.property('vendorOptions');
-            expect(parsePack.options.vendorOptions).to.be.equal(testPacket.options.vendorOptions);
+            expect(parsePack.options.vendorOptions).to.be.eql(testPacket.options.vendorOptions);
         });
 
         it("should have a packet option requestedIpAddress", function() {       //case 50
@@ -490,7 +483,7 @@ describe("Parser", function() {
             expect(parsePack.options.subnetAddress).to.be.equal(testPacket.options.subnetAddress);
         });
 
-        it("should have a packet option vendorOptions") //option default
+        it("should have a packet option for default"); //option default
 
     });
 
