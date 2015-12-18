@@ -9,6 +9,7 @@ describe("Packet", function() {
     var protocol;
     var testPacket = {
         op: { value: 1, name: 'BOOTPREQUEST' },
+        htype: { value: 1, name : 'HW_ETHERNET'},
         hlen: 6,
         hops: 0,
         xid: 681302462,
@@ -163,6 +164,7 @@ describe("Packet", function() {
 
         it("should parse the options into the buffer", function() {
             var pkt = {
+                op: { value: 1, name: 'BOOTPREQUEST' },
                 xid: 681302462,
                 chaddr: {
                     type: { value: 1, name: 'HW_ETHERNET' },
@@ -185,7 +187,10 @@ describe("Packet", function() {
                     renewalTimeValue: 200,                  //option 58
                     rebindingTimeValue: 300,                //option 59
                     vendorClassIdentifier: 'PXEClient:Arch:00000:UNDI:002001',   //option 60
-                    clientIdentifier: '100.100',            //option 61
+                    clientIdentifier: {               //option 61
+                        type: { value: 1, name: 'HW_ETHERNET' },
+                        address: '00:23:4e:ff:ff:ff'
+                    },
                     bootFileName: 'bootfilename',           //option 67
                     maximumMessageSize: 1260
                 }
