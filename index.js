@@ -29,7 +29,7 @@ core.start()
     ).start();
 })
 .catch(function(e) {
-    logger.error("Error starting server", {
+    logger.critical("Error starting server", {
         error: e
     });
     process.nextTick(function() {
