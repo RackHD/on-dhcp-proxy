@@ -7,10 +7,5 @@ Standards-Version: 3.9.4
 
 Package: on-dhcp-proxy
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends},
- nodejs (=0.10.25~dfsg2-2ubuntu1),
- nodejs-legacy,
- npm,
- mongodb
-Description: on-dhcp-proxy
- Imaging Workflow dhcp proxy engine
+Depends: ${shlibs:Depends}, ${misc:Depends}, nodejs (=0.10.25~dfsg2-2ubuntu1), nodejs-legacy, npm, mongodb
+Description: RackHD Imaging workflow DHCP-Proxy engine
