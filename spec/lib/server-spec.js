@@ -11,17 +11,17 @@ describe("Server", function() {
     var outPort =
         {
             LegacyPort: (68),
-                EFIPort:(4011)
+            EFIPort:(4011)
         };
 
     before('Server before', function() {
         helper.setupInjector(
             [
-            helper.require('/lib/server'),
-            helper.require('/lib/dhcp-protocol'),
-            helper.require('/lib/message-handler'),
-            helper.require('/lib/packet'),
-            helper.require('/lib/parser')
+                helper.require('/lib/server'),
+                helper.require('/lib/dhcp-protocol'),
+                helper.require('/lib/message-handler'),
+                helper.require('/lib/packet'),
+                helper.require('/lib/parser')
             ]
         );
         var Logger = helper.injector.get('Logger');
@@ -59,9 +59,9 @@ describe("Server", function() {
         before('before Send function',function() {
             testServer = new server('1',outPort,'123.4.56.7');
             fakeData = {
-            packetBuffer: 240,
-            destination: '123.4.56.7',
-            isefi: false 
+                packetBuffer: 240,
+                destination: '123.4.56.7',
+                isefi: false 
             };
 
         });
