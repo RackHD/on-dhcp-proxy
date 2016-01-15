@@ -84,7 +84,18 @@ describe("Server", function() {
             testServer.send(fakeData);
             mock.verify(); 
         });
-        
+
+        it('should Send data with error',function(){
+            var Logger = helper.injector.get('Logger');
+            var spy = sinon.spy(Logger.prototype, 'error');
+            var stub = sinon.stub(testServer.server, 'send');
+            stub.yields('err');
+            testServer.send(fakeData);
+
+            expect(stub.calledOnce);
+            spy.calledWith('Error sending packet: err');
+        });
+
     }); 
 
     describe('Start function', function() { 
@@ -102,6 +113,24 @@ describe("Server", function() {
             testServer.start();
             mock.verify();
         });
+
+        it('should handle start and bind', function() {
+            var stub1 = sinon.stub(testServer.server, 'on');
+            var stub2 = sinon.stub(testServer.server, 'bind');
+            var stub3 = sinon.stub(testServer.server, 'setBroadcast');
+            var stub4 = sinon.stub(process, 'exit');
+
+            stub1.yields();
+            stub2.yields();
+
+            testServer.start();
+
+            expect(stub1.calledTwice);
+            expect(stub2.calledOnce);
+            expect(stub3.calledWith(true));
+            expect(stub4.calledWith(1));
+        })
+
     });    
 
     describe('StartCore function', function() {
