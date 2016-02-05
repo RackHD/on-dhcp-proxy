@@ -1,3 +1,5 @@
+# Copyright 2016, EMC, Inc.
+
 FROM rackhd/on-core
 
 RUN mkdir -p /RackHD/on-dhcp-proxy
