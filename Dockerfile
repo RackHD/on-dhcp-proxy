@@ -18,5 +18,4 @@ EXPOSE 68
 EXPOSE 68/udp
 EXPOSE 4011
 
-ENTRYPOINT [ "node" ]
-CMD [ "/RackHD/on-dhcp-proxy/index.js" ]
+CMD [ "node", "/RackHD/on-dhcp-proxy/index.js" ]
