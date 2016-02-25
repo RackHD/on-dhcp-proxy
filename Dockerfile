@@ -12,9 +12,8 @@ RUN cd /tmp \
   && npm install --ignore-scripts --production
 
 COPY . /RackHD/on-dhcp-proxy/
-RUN cp -a /tmp/node_modules /RackHD/on-dhcp-proxy/
+RUN cp -a -f /tmp/node_modules /RackHD/on-dhcp-proxy/
 
-EXPOSE 68
 EXPOSE 68/udp
 EXPOSE 4011
 
