@@ -34,6 +34,7 @@ describe("MessageHandler", function() {
             chaddr: {
                 address: '00:00:00:00:00:00'
             },
+            ciaddr: '10.1.1.11',
             options: {}
         };
     });
@@ -504,6 +505,17 @@ describe("MessageHandler", function() {
             });
         });
 
+        it("should not call the send callback if lookupService.setIpAddress " +
+            "resolves null", function() {
+            var stubCallback = sinon.stub();
+            lookupService.setIpAddress.resolves(null);
+
+            return messageHandler.handleDhcpPacket(null, stubCallback)
+                .then(function() {
+                    expect(stubCallback).to.not.have.been.called;
+                });
+        });
+
         it("should call the send callback with a response packet", function() {
             var stubCallback = sinon.stub();
             var bootfile = 'testbootfile';
@@ -515,6 +527,21 @@ describe("MessageHandler", function() {
                 expect(packetUtil.createProxyDhcpAck).to.have.been.calledWith(packetData, bootfile);
                 expect(stubCallback).to.have.been.calledWith({ fname: bootfile });
             });
+        });
+
+        it("should call lookupService and set the Ip address with" +
+            " the response packet information", function() {
+            var bootfile = 'testbootfile';
+            var stubCallback = sinon.stub();
+            packetUtil.createProxyDhcpAck.returns({ fname: bootfile });
+            messageHandler.getBootfile.resolves(bootfile);
+
+            return messageHandler.handleDhcpPacket(null, stubCallback)
+                .then(function() {
+                    expect(lookupService.setIpAddress).to.have.been.calledWith(packetData.ciaddr,
+                        packetData.chaddr.address);
+                    expect(stubCallback).to.have.been.calledWith({ fname: bootfile });
+                });
         });
     });
 });
