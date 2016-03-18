@@ -233,14 +233,21 @@ describe("MessageHandler", function() {
 
     describe("getKnownNodeAction", function() {
         var taskProtocol;
+        var waterline;
 
         before("MessageHandler.getKnownNodeAction before", function() {
             taskProtocol = helper.injector.get('Protocol.Task');
+            waterline = helper.injector.get('Services.Waterline');
+            waterline.nodes = {
+                findByIdentifier: function() {}
+            };
             sinon.stub(taskProtocol, 'activeTaskExists');
+            sinon.stub(waterline.nodes, 'findByIdentifier');
         });
 
         beforeEach("MessageHandler.getKnownNodeAction beforeEach", function() {
             taskProtocol.activeTaskExists.reset();
+            waterline.nodes.findByIdentifier.reset();
         });
 
         after("MessageHandler.getKnownNodeAction after", function() {
@@ -257,8 +264,40 @@ describe("MessageHandler", function() {
             });
         });
 
-        it("should get the action for a known node if it does not have an active task", function() {
+        it("should get the action for a known node if it does not have an active task" +
+                " and does not have bootSettings", function() {
+
+            var node = { id: "testnodeid" };
+
             taskProtocol.activeTaskExists.rejects(new Error(''));
+            waterline.nodes.findByIdentifier.resolves(node);
+
+            return messageHandler.getKnownNodeAction('testnodeid')
+            .then(function(out) {
+                expect(out).to.have.property('action').that.equals('ignore');
+            });
+        });
+
+        it("should get the action for a known node if it does not have an active task" +
+                " and havs bootSettings", function() {
+
+            var node = { id: "testnodeid", bootSettings: {} };
+
+            taskProtocol.activeTaskExists.rejects(new Error(''));
+            waterline.nodes.findByIdentifier.resolves(node);
+
+            return messageHandler.getKnownNodeAction('testnodeid')
+            .then(function(out) {
+                expect(out).to.have.property('action').that.equals('next');
+                expect(out).to.have.property('data').that.equals(testnodeid);
+            });
+        });
+
+        it("should get the action for a known node if it does not have an active task" +
+                " and has exceptions when findByIdentifier", function() {
+
+            taskProtocol.activeTaskExists.rejects(new Error(''));
+            waterline.nodes.findByIdentifier.rejects(new Error(''));
 
             return messageHandler.getKnownNodeAction('testnodeid')
             .then(function(out) {
