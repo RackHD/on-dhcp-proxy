@@ -279,7 +279,7 @@ describe("MessageHandler", function() {
         });
 
         it("should get the action for a known node if it does not have an active task" +
-                " and havs bootSettings", function() {
+                " and have bootSettings", function() {
 
             var node = { id: "testnodeid", bootSettings: {} };
 
