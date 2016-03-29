@@ -414,10 +414,12 @@ describe("MessageHandler", function() {
 
         it("should return customized monorail undionly.kpxe for UNDI pxe dhcp request", function() {
             packetData.options.vendorClassIdentifier = 'PXEClient:Arch:00000:UNDI:002001';
-            expect(messageHandler.getDefaultBootfile(packetData)).to.equal('monorail-undionly.kpxe');
+            expect(messageHandler.getDefaultBootfile(packetData))
+                .to.equal('monorail-undionly.kpxe');
         });
 
-        it("should return the default customized monorail ipxe if no special cases are met", function() {
+        it("should return the default customized monorail ipxe if no special" +
+                "cases are met", function() {
             packetData.options.vendorClassIdentifier = 'testVendorClass';
             expect(messageHandler.getDefaultBootfile(packetData)).to.equal('monorail.ipxe');
         });
