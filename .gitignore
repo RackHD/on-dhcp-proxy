@@ -38,6 +38,9 @@ node_modules
 # IDE
 .idea
 
+# Vagrant
+.vagrant/
+
 # Gyp Build
 build
 
