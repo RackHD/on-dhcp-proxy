@@ -8,6 +8,7 @@
 debian/
 dhcpd.conf
 Dockerfile
+extra/
 gruntfile.js
 HWIMO-*
 LICENSE
