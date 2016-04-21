@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # Ensure we're always in the right directory.
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
@@ -37,8 +38,8 @@ echo "DCHOPTS:      $DCHOPTS"
 if [ -d packagebuild ]; then
   rm -rf packagebuild
 fi
-
-git clone . packagebuild
+mkdir packagebuild
+rsync -ar --exclude=packagebuild . packagebuild
 pushd packagebuild
 rm -rf node_modules
 npm install --production
