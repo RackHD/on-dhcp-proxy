@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 # Ensure we're always in the right directory.
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
