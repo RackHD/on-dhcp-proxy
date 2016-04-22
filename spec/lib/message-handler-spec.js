@@ -20,6 +20,7 @@ describe("MessageHandler", function() {
                 helper.require('/lib/dhcp-protocol')
             ]
         );
+
         lookupService = helper.injector.get('Services.Lookup');
         sinon.stub(lookupService, 'setIpAddress').resolves();
         Errors = helper.injector.get('Errors');
