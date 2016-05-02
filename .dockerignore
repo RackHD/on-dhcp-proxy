@@ -11,5 +11,6 @@ Dockerfile
 gruntfile.js
 HWIMO-*
 LICENSE
+node_modules/
 README.md
 spec/
