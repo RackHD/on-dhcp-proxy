@@ -5,7 +5,6 @@
 
 describe('ISC DHCP Poller', function () {
     var uuid;
-    var DHCPLeasePoller;
 
     // create a future end date
     // consider different timezone and the daylight saving, add 2 days bases on now will always
@@ -85,9 +84,8 @@ describe('ISC DHCP Poller', function () {
         );
 
         uuid = helper.injector.get('uuid');
-        var Logger = helper.injector.get('Logger');
 
-        this.DHCPLeasePoller = helper.injector.get('DHCP.iscDhcpLeasePoller');
+        this.DHCPLeasePoller = helper.injector.get('DHCP.IscDhcpLeasePoller');
     });
 
 

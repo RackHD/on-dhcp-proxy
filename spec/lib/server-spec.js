@@ -28,7 +28,7 @@ describe("Server", function() {
         var Logger = helper.injector.get('Logger');
         Logger.prototype.log = sinon.stub();
 
-        DHCPPoller = helper.injector.get('DHCP.iscDhcpLeasePoller');
+        DHCPPoller = helper.injector.get('DHCP.IscDhcpLeasePoller');
 
         server = helper.injector.get('DHCP.Proxy.Server');
         parser = helper.injector.get('DHCP.parser');
@@ -144,13 +144,13 @@ describe("Server", function() {
             expect(stub2.calledOnce);
             expect(stub3.calledWith(true));
             expect(stub4.calledWith(1));
-        })
+        });
 
         it('should handle start and start the DHCP Lease Poller', function() {
             testServer.start();
 
             expect(DHCPPoller.prototype._run.calledOnce);
-        })
+        });
 
     });    
 
