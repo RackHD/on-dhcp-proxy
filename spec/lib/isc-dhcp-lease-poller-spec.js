@@ -5,6 +5,9 @@
 
 describe('ISC DHCP Poller', function () {
     var uuid;
+    var Logger;
+    var PromiseQueue;
+    var Tail;
 
     // create a future end date
     // consider different timezone and the daylight saving, add 2 days bases on now will always
@@ -78,16 +81,19 @@ describe('ISC DHCP Poller', function () {
         // create a child injector with on-core and the base pieces we need to test this
         helper.setupInjector(
             [
-                helper.require('/spec/mocks/logger.js'),
                 helper.require('/lib/isc-dhcp-lease-poller')
             ]
         );
 
         uuid = helper.injector.get('uuid');
 
+        Logger = helper.injector.get('Logger');
+
+        PromiseQueue = helper.injector.get('PromiseQueue');
+        Tail = helper.injector.get('Tail');
+
         this.DHCPLeasePoller = helper.injector.get('DHCP.IscDhcpLeasePoller');
     });
-
 
     describe('Platform', function() {
         beforeEach(function () {
@@ -125,9 +131,79 @@ describe('ISC DHCP Poller', function () {
     });
 
 
+    describe("Queue Error", function (){
+       it('should log a Queue Error', function(){
+           var DHCPPoller = new this.DHCPLeasePoller({}, {});
+           var spy = sinon.spy(Logger.prototype, 'error');
+
+           DHCPPoller._queueError('Queue Error Test');
+
+           expect(spy).to.have.been.calledWith('Queue Error', { error: "Queue Error Test" });
+
+           Logger.prototype.error.restore();
+       });
+    });
+
+    describe("Tail Error", function (){
+        it('should log a Tail Error', function(){
+            var DHCPPoller = new this.DHCPLeasePoller({}, {});
+            var spy = sinon.spy(Logger.prototype, 'error');
+
+            DHCPPoller._tailError('Tail Error Test');
+
+            expect(spy).to.have.been.calledWith('Tail Error', { error: "Tail Error Test" });
+
+            Logger.prototype.error.restore();
+        });
+    });
+
+    describe("Online", function (){
+        beforeEach(function () {
+            this.sandbox = sinon.sandbox.create();
+        });
+
+        afterEach(function () {
+            this.sandbox.restore();
+        });
+
+        it('should log an error if data is undefined', function (){
+            var DHCPPoller = new this.DHCPLeasePoller({}, {});
+            var spy = this.sandbox.stub(Logger.prototype, 'error');
+
+            return DHCPPoller._onLine(undefined).then( function(){
+                expect(spy).to.have.been.calledOnce;
+
+                Logger.prototype.error.restore();
+            });
+        });
+
+        it("should not lookup a lease that does not exist", function(){
+            var DHCPPoller = new this.DHCPLeasePoller({}, {});
+            var spy = this.sandbox.stub(PromiseQueue.prototype, 'enqueue');
+
+            return DHCPPoller._onLine('11').then( function(){
+                expect(spy).to.not.have.been.called;
+            });
+        });
+    });
+
+    describe("Cleanup", function (){
+        it('should stop the queue even when there is no tail', function (){
+            var DHCPPoller = new this.DHCPLeasePoller({}, {});
+            var spy = sinon.spy(PromiseQueue.prototype, 'stop');
+
+            DHCPPoller._cleanup();
+
+            expect(spy).to.have.been.calledOnce;
+        });
+
+        it("should unwatch and remove the tail");
+
+    });
+
     describe("Parse Lease Data", function(){
         it('should parse lease data', function() {
-            var DHCPPoller = new this.DHCPLeasePoller({}, {}, uuid.v4());
+            var DHCPPoller = new this.DHCPLeasePoller({}, {});
             var parsed = DHCPPoller.parseLeaseData(leaseData.toString());
             expect(parsed).to.deep.equal({
                 ip: '10.1.1.3',
@@ -136,14 +212,14 @@ describe('ISC DHCP Poller', function () {
         });
 
         it('should not parse an expired lease', function() {
-            var DHCPPoller = new this.DHCPLeasePoller({}, {}, uuid.v4());
+            var DHCPPoller = new this.DHCPLeasePoller({}, {});
             var parsed = DHCPPoller.parseLeaseData(expiredLeaseData.toString());
 
             expect(parsed).to.be.undefined;
         });
 
         it('should only parse leases that are not expired', function() {
-            var DHCPPoller = new this.DHCPLeasePoller({}, {}, uuid.v4());
+            var DHCPPoller = new this.DHCPLeasePoller({}, {});
             var parsed = DHCPPoller.parseLeaseData(multipleLeaseDate.toString());
 
             expect(parsed).to.deep.equal({
