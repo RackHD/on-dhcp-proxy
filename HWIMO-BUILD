@@ -15,7 +15,7 @@ pushd packagebuild
 cp ../package.json .
 
 rm -rf node_modules
-npm install
+npm install --cache=`pwd`
 npm prune --production
 git log -n 1 --pretty=format:%h.%ai.%s > commitstring.txt
 
