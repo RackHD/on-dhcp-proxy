@@ -380,7 +380,7 @@ describe("MessageHandler", function() {
         });
 
         it("should return the profiles API for an iPXE user class", function() {
-            var expectedUrl = 'http://10.1.1.1:80/api/common/profiles';
+            var expectedUrl = 'http://10.1.1.1:80/api/current/profiles';
             packetData.options.userClass = 'MonoRail';
 
             configuration.get.withArgs('apiServerAddress').returns('10.1.1.1');
@@ -390,7 +390,7 @@ describe("MessageHandler", function() {
 
         it("should return the profiles API with mac params for arista nodes", function() {
             var expectedUrl =
-                'http://10.1.1.1:80/api/common/profiles?macs=' + packetData.chaddr.address;
+                'http://10.1.1.1:80/api/current/profiles?macs=' + packetData.chaddr.address;
             packetData.options.vendorClassIdentifier = 'Arista';
 
             configuration.get.withArgs('apiServerAddress').returns('10.1.1.1');
@@ -399,7 +399,7 @@ describe("MessageHandler", function() {
         });
 
         it("should return the profiles API for mellanox mac addresses", function() {
-            var expectedUrl = 'http://10.1.1.1:80/api/common/profiles';
+            var expectedUrl = 'http://10.1.1.1:80/api/current/profiles';
             packetData.chaddr.address = '00:02:c9:00:00:00';
 
             configuration.get.withArgs('apiServerAddress').returns('10.1.1.1');
