@@ -117,7 +117,7 @@ describe("Server", function() {
         before('before StartCore function', function() {
             testServer = new server('1',outPort,'123.4.56.7');
 
-            DHCPPoller.prototype._run = sinon.stub();
+            DHCPPoller.prototype.run = sinon.stub();
         });
 
         it('should handle message', function() {
@@ -149,7 +149,7 @@ describe("Server", function() {
         it('should handle start and start the DHCP Lease Poller', function() {
             testServer.start();
 
-            expect(DHCPPoller.prototype._run.calledOnce);
+            expect(DHCPPoller.prototype.run.calledOnce);
         });
 
     });    

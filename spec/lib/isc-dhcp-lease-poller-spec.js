@@ -8,6 +8,7 @@ describe('ISC DHCP Poller', function () {
     var Logger;
     var PromiseQueue;
     var Tail;
+    var Configuration;
 
     // create a future end date
     // consider different timezone and the daylight saving, add 2 days bases on now will always
@@ -93,6 +94,85 @@ describe('ISC DHCP Poller', function () {
         Tail = helper.injector.get('Tail');
 
         this.DHCPLeasePoller = helper.injector.get('DHCP.IscDhcpLeasePoller');
+    });
+
+    describe('Run', function () {
+
+        before("Run before", function() {
+            Configuration = helper.injector.get('Services.Configuration');
+        });
+
+        beforeEach("Run beforeEach", function() {
+            sinon.stub(Configuration, 'get');
+            Configuration.get.reset();
+
+            var loggerSpy = sinon.spy(Logger.prototype, 'debug');
+            Logger.prototype.debug.reset();
+        });
+
+        afterEach("Run after", function() {
+            Configuration.get.restore();
+            Logger.prototype.debug.restore();
+        });
+
+        it('should not run if dhcpPollerActive is not defined as True', function () {
+            var DHCPPoller = new this.DHCPLeasePoller({}, {});
+            DHCPPoller._run = sinon.stub();
+
+            var spy = sinon.spy(DHCPPoller._run);
+
+            Configuration.get.withArgs('dhcpPollerActive').returns(false);
+
+            DHCPPoller.run().then(function(){
+                expect(spy).to.not.have.been.calledOnce;
+                expect(loggerSpy).to.have.been.calledWith("DHCP Lease Poller is Off.");
+            });
+
+        });
+
+        it('should run if dhcpPollerActive is defined as True', function () {
+            var DHCPPoller = new this.DHCPLeasePoller({}, {});
+            DHCPPoller._run = sinon.stub();
+
+            var spy = sinon.spy(DHCPPoller._run);
+
+            //Configuration.get.withArgs('dhcpPollerActive').returns(true);
+
+            DHCPPoller.run().then(function(){
+                expect(spy).to.have.been.calledOnce;
+                expect(loggerSpy).to.have.been.calledWith("Running DHCP Lease Poller.");
+            });
+        });
+
+    });
+
+    describe('_Run', function() {
+
+        after("_Run after", function() {
+            Tail.prototype.watch.restore();
+            PromiseQueue.prototype.start.restore();
+        });
+
+        it('should start the dhcp lease queue and watch the dhcp tail', function() {
+            var DHCPPoller = new this.DHCPLeasePoller({}, {});
+            var startStub = sinon.stub(PromiseQueue.prototype, 'start');
+
+            DHCPPoller._run();
+            expect(startStub).to.have.been.calledOnce;
+
+            DHCPPoller._cleanup();
+        });
+
+        it('should watch the dhcp tail', function() {
+            var DHCPPoller = new this.DHCPLeasePoller({}, {});
+            var watchStub = sinon.stub(Tail.prototype, 'watch');
+
+            DHCPPoller._run();
+            expect(watchStub).to.have.been.calledOnce;
+
+            DHCPPoller._cleanup();
+        });
+
     });
 
     describe('Platform', function() {
@@ -197,7 +277,19 @@ describe('ISC DHCP Poller', function () {
             expect(spy).to.have.been.calledOnce;
         });
 
-        it("should unwatch and remove the tail");
+        it("should unwatch and remove the tail", function () {
+           /* var DHCPPoller = new this.DHCPLeasePoller({}, {});
+            var watchSpy = sinon.spy(Tail.prototype, 'unwatch');
+            var spy = sinon.spy(PromiseQueue.prototype, 'stop');
+
+            /*DHCPPoller.tail = new Tail();
+            DHCPPoller._cleanup();
+
+            expect(watchSpy).to.have.been.calledOnce;
+
+            Tail.prototype.unwatch.restore();
+            PromiseQueue.prototype.stop.restore();*/
+        });
 
     });
 
