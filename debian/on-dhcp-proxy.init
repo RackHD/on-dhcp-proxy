@@ -1,0 +1,48 @@
+#!/bin/sh
+
+. /lib/lsb/init-functions
+
+### BEGIN INIT INFO
+# Provides:          on-dhcp-proxy
+# Required-Start:    $syslog $network mongodb rabbitmq-server
+# Required-Stop:     $syslog $network
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: on-dhcp-proxy
+# Description:       RackHD on-dhcp-proxy service
+### END INIT INFO
+
+DESC="on-dhcp-proxy"
+
+CONFIG=/etc/default/on-dhcp-proxy
+LOGFILE=/var/log/on-dhcp-proxy.log
+
+do_start()
+{
+    if [ -f "$CONFIG" ]
+    then
+	cd /var/renasar/on-dhcp-proxy
+	/usr/bin/nodejs /var/renasar/on-dhcp-proxy/index.js >>"$LOGFILE" 2>&1  &
+	log_success_msg "Started on-dhcp-proxy daemon"
+    else
+        log_failure_msg "Config file $CONFIG missing, not starting"
+    fi
+}
+
+
+ACTION=$1
+
+case "$ACTION" in
+
+    start)
+	do_start
+	;;
+    stop | restart | reload | force-reload | status)
+	# unimplemented
+	;;
+    *)
+	logger "Unknown action \"$ACTION\""
+	;;
+esac
+
+exit 0
