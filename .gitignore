@@ -42,3 +42,13 @@ node_modules
 build
 
 .tmp
+
+
+# package detritus
+packagebuild/
+on-dhcp-proxy_*.dsc
+on-dhcp-proxy_*.tar.gz
+on-dhcp-proxy_*.tar.xz
+on-dhcp-proxy_*.build
+on-dhcp-proxy_*.changes
+on-dhcp-proxy_*.deb
