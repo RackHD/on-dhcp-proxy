@@ -8,6 +8,7 @@ describe("Server", function() {
     var parser;
     var core;
     var packetDHCP;
+    var DHCPPoller;
     var outPort =
         {
             LegacyPort: (68),
@@ -15,37 +16,45 @@ describe("Server", function() {
         };
 
     before('Server before', function() {
-        helper.setupInjector(
-            [
+        helper.setupInjector([
                 helper.require('/lib/server'),
                 helper.require('/lib/dhcp-protocol'),
                 helper.require('/lib/message-handler'),
+                helper.require('/lib/isc-dhcp-lease-poller'),
                 helper.require('/lib/packet'),
                 helper.require('/lib/parser')
-            ]
-        );
+            ]);
+
         var Logger = helper.injector.get('Logger');
         Logger.prototype.log = sinon.stub();
+
+        DHCPPoller = helper.injector.get('DHCP.IscDhcpLeasePoller');
+
         server = helper.injector.get('DHCP.Proxy.Server');
         parser = helper.injector.get('DHCP.parser');
         packetDHCP = helper.injector.get('DHCP.packet');
         core = helper.injector.get('Services.Core');
-        });
+    });
 
     describe('Server function', function() {
         var testServer;
+
         before('Server function before', function() {
             testServer = new server('1',outPort,'192.4.84.7');
         }); 
+
         it('should have valid address',function(){
             expect(testServer.address).to.equal('192.4.84.7')
         });
+
         it('should have valid inPort', function(){
             expect(testServer.inPort).to.equal('1')
         });
+
         it('should have valid outPort', function() {
             expect(testServer.outPort).to.equal(68)
         });
+
         it('should have valid outportEFI', function() {
             expect(testServer.outportEFI).to.equal(4011)
         });
@@ -56,6 +65,7 @@ describe("Server", function() {
         var fakeData = {
         };
         var testServer;
+
         before('before Send function',function() {
             testServer = new server('1',outPort,'123.4.56.7');
             fakeData = {
@@ -75,6 +85,7 @@ describe("Server", function() {
             testServer.send(fakeData);
             mock.verify(); 
         });
+
         it('should Send data',function(){
             var mock = sinon.mock(testServer.server)
             mock.expects("send").once().withArgs(fakeData.packetBuffer, 0,
@@ -102,9 +113,13 @@ describe("Server", function() {
         var testServer;
         var message = 'message';
         var error = 'error';
-        before('before StartCore function', function() { 
+
+        before('before StartCore function', function() {
             testServer = new server('1',outPort,'123.4.56.7');
+
+            DHCPPoller.prototype.run = sinon.stub();
         });
+
         it('should handle message', function() {
             var mock = sinon.mock(testServer.server);
             mock.expects('on').withArgs(message).once();
@@ -129,15 +144,23 @@ describe("Server", function() {
             expect(stub2.calledOnce);
             expect(stub3.calledWith(true));
             expect(stub4.calledWith(1));
-        })
+        });
+
+        it('should handle start and start the DHCP Lease Poller', function() {
+            testServer.start();
+
+            expect(DHCPPoller.prototype.run.calledOnce);
+        });
 
     });    
 
     describe('StartCore function', function() {
         var testServer;
-        before('before StartCore function', function() { 
+
+        before('before StartCore function', function() {
             testServer = new server('1',outPort,'123.4.56.7');
         });
+
         it('Should return core.start', function() {
             var stub = sinon.stub(core, 'start');
             testServer.startCore();
@@ -148,15 +171,18 @@ describe("Server", function() {
     
     describe('Stop function', function() {
         var testServer;
-        before('before Stop function', function() { 
+
+        before('before Stop function', function() {
             testServer = new server('1',outPort,'123.4.56.7');
         });
+
         it('Should close server', function() {
             var mock = sinon.mock(testServer.server);
             mock.expects('close').once();
             testServer.stop();
             mock.verify();
         });
+
         it('Should removeAllListeners', function() {
             var mock = sinon.mock(testServer.server);
             mock.expects('removeAllListeners').once();
@@ -168,6 +194,5 @@ describe("Server", function() {
     describe('Create function', function() {
         it('needs tests');
     });
-
 
 });

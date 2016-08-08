@@ -13,6 +13,7 @@
   "license": "Apache-2.0",
   "gypfile": true,
   "dependencies": {
+    "always-tail": "^0.2.0",
     "bindings": "~1.2.1",
     "di": "git+https://github.com/RackHD/di.js.git",
     "ipv6": "^3.1.1",
