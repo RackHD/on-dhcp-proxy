@@ -148,14 +148,14 @@ describe('ISC DHCP Poller', function () {
 
     describe('_Run', function() {
 
-        after("_Run after", function() {
+        after('_Run after', function() {
             Tail.prototype.watch.restore();
             PromiseQueue.prototype.start.restore();
         });
 
         it('should start the dhcp lease queue and watch the dhcp tail', function() {
             var DHCPPoller = new this.DHCPLeasePoller({}, {});
-            var startStub = sinon.stub(PromiseQueue.prototype, 'start');
+            var startStub = sinon.spy(PromiseQueue.prototype, 'start');
 
             DHCPPoller._run();
             expect(startStub).to.have.been.calledOnce;
@@ -165,7 +165,7 @@ describe('ISC DHCP Poller', function () {
 
         it('should watch the dhcp tail', function() {
             var DHCPPoller = new this.DHCPLeasePoller({}, {});
-            var watchStub = sinon.stub(Tail.prototype, 'watch');
+            var watchStub = sinon.spy(Tail.prototype, 'watch');
 
             DHCPPoller._run();
             expect(watchStub).to.have.been.calledOnce;
