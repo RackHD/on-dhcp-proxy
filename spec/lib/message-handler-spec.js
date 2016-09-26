@@ -108,12 +108,14 @@ describe("MessageHandler", function() {
             parser = helper.injector.get('DHCP.parser');
 
             sinon.stub(messageHandler, 'getDefaultBootfile');
+            sinon.stub(messageHandler, 'isBootFileNameSent');
             sinon.stub(packetUtil, 'createProxyDhcpAck');
             sinon.stub(parser, 'parse');
         });
 
         beforeEach("MessageHandler.handleDhcpPacket beforeEach", function() {
             messageHandler.getDefaultBootfile.reset();
+            messageHandler.isBootFileNameSent.reset();
             packetUtil.createProxyDhcpAck.reset();
 
             parser.parse.returns(packetData);
@@ -121,13 +123,25 @@ describe("MessageHandler", function() {
 
         after("MessageHandler.handleDhcpPacket after", function() {
             messageHandler.getDefaultBootfile.restore();
+            messageHandler.isBootFileNameSent.restore();
             packetUtil.createProxyDhcpAck.restore();
             parser.parse.restore();
         });
 
         it("should not call the send callback if not bootfile is specified", function() {
             var stubCallback = sinon.stub();
+            messageHandler.isBootFileNameSent.resolves(true);
             messageHandler.getDefaultBootfile.resolves(null);
+
+            return messageHandler.handleDhcpPacket(null, stubCallback)
+            .then(function() {
+                expect(stubCallback).to.not.have.been.called;
+            });
+        });
+
+        it("should not call the send callback if don't need send bootfile name", function() {
+            var stubCallback = sinon.stub();
+            messageHandler.isBootFileNameSent.resolves(false);
 
             return messageHandler.handleDhcpPacket(null, stubCallback)
             .then(function() {
@@ -139,12 +153,105 @@ describe("MessageHandler", function() {
             var stubCallback = sinon.stub();
             var bootfile = 'testbootfile';
             packetUtil.createProxyDhcpAck.returns({ fname: bootfile });
+            messageHandler.isBootFileNameSent.resolves(true);
             messageHandler.getDefaultBootfile.resolves(bootfile);
 
             return messageHandler.handleDhcpPacket(null, stubCallback)
             .then(function() {
                 expect(packetUtil.createProxyDhcpAck).to.have.been.calledWith(packetData, bootfile);
                 expect(stubCallback).to.have.been.calledWith({ fname: bootfile });
+            });
+        });
+
+    });
+
+    describe("isBootFileNameSent", function() {
+        var node;
+        var lookupService;
+        var taskProtocol;
+
+        before("MessageHandler.isBootFileNameSent before", function() {
+            lookupService = helper.injector.get('Services.Lookup');
+            taskProtocol = helper.injector.get('Protocol.Task');
+
+            sinon.stub(lookupService, 'macAddressToNode');
+            sinon.stub(taskProtocol, 'activeTaskExists');
+            node = {
+                discovered: sinon.stub(),
+                id: 'testnodeid'
+            };
+        });
+
+        beforeEach("MessageHandler.isBootFileNameSent beforeEach", function() {
+            lookupService.macAddressToNode.reset();
+            taskProtocol.activeTaskExists.reset();
+            node.discovered.reset();
+        });
+
+        after("MessageHandler.isBootFileNameSent after", function() {
+            lookupService.macAddressToNode.restore();
+            taskProtocol.activeTaskExists.restore();
+        });
+
+        it("should send bootfile name if node lookup is not found", function() {
+            lookupService.macAddressToNode.rejects(new Errors.NotFoundError(''));
+
+            return messageHandler.isBootFileNameSent(packetData)
+            .then(function(result) {
+                expect(result).to.equal(true);
+            });
+        });
+
+        it("should not send bootfile name if node lookup has failure", function() {
+            lookupService.macAddressToNode.rejects(new Error(''));
+
+            return messageHandler.isBootFileNameSent(packetData)
+            .then(function(result) {
+                expect(result).to.equal(false);
+            });
+        });
+
+        it("should send bootfile name if node is not discovered", function() {
+            lookupService.macAddressToNode.resolves(node);
+            node.discovered.resolves(false);
+
+            return messageHandler.isBootFileNameSent(packetData)
+            .then(function(result) {
+                expect(result).to.equal(true);
+            });
+        });
+
+        it("should send bootfile name if node is discovered and has active tasks", function() {
+            lookupService.macAddressToNode.resolves(node);
+            node.discovered.resolves(true);
+            taskProtocol.activeTaskExists.resolves();
+
+            return messageHandler.isBootFileNameSent(packetData)
+            .then(function(result) {
+                expect(result).to.equal(true);
+            });
+        });
+
+        it("should not send bootfile name if no active tasks and no bootSettings", function() {
+            lookupService.macAddressToNode.resolves(node);
+            node.discovered.resolves(true);
+            taskProtocol.activeTaskExists.rejects(new Error(''));
+
+            return messageHandler.isBootFileNameSent(packetData)
+            .then(function(result) {
+                expect(result).to.equal(false);
+            });
+        });
+
+        it("should send bootfile name if no active tasks but has bootSettings", function() {
+            lookupService.macAddressToNode.resolves(node);
+            node.discovered.resolves(true);
+            taskProtocol.activeTaskExists.rejects(new Error(''));
+            node.bootSettings = {};
+
+            return messageHandler.isBootFileNameSent(packetData)
+            .then(function(result) {
+                expect(result).to.equal(true);
             });
         });
 
