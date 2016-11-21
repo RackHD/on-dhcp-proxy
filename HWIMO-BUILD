@@ -6,14 +6,13 @@
 # apt-get install git pbuilder dh-make ubuntu-dev-tools devscripts
 # apt-get install nodejs nodejs-legacy npm
 
+# Input (environment variables):
+# * PKG_VERSION: The version of debian package, 
+#                such as: 1.3.1~rc-20161115053821Z-be2918e (candidate release) 
+#                         1.3.1 (official release);
+
 set -e
 set -x
-
-# $1 should be a file which contains the release version.
-# For example:  PKG_VERSION=on-http~1.2.3-rc-abc...
-if [ -f "$1" ];then
-    source $1
-fi
 
 rm -rf packagebuild
 git clone . packagebuild
