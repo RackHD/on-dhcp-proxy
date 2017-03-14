@@ -1,6 +1,6 @@
 # Copyright 2016, EMC, Inc.
 
-FROM rackhd/on-core
+FROM rackhd/on-core:devel
 
 COPY . /RackHD/on-dhcp-proxy/
 WORKDIR /RackHD/on-dhcp-proxy
