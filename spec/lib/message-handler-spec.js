@@ -176,6 +176,7 @@ describe("MessageHandler", function() {
 
             sinon.stub(lookupService, 'macAddressToNode');
             sinon.stub(taskProtocol, 'activeTaskExists');
+            sinon.stub(taskProtocol, 'requestProfile');
             node = {
                 discovered: sinon.stub(),
                 id: 'testnodeid'
@@ -185,12 +186,14 @@ describe("MessageHandler", function() {
         beforeEach("MessageHandler.isBootFileNameSent beforeEach", function() {
             lookupService.macAddressToNode.reset();
             taskProtocol.activeTaskExists.reset();
+            taskProtocol.requestProfile.reset();
             node.discovered.reset();
         });
 
         after("MessageHandler.isBootFileNameSent after", function() {
             lookupService.macAddressToNode.restore();
             taskProtocol.activeTaskExists.restore();
+            taskProtocol.requestProfile.restore();
         });
 
         it("should send bootfile name if node lookup is not found", function() {
@@ -221,14 +224,29 @@ describe("MessageHandler", function() {
             });
         });
 
-        it("should send bootfile name if node is discovered and has active tasks", function() {
+        it("should send bootfile name if node is discovered and has active tasks and profiles",
+        function() {
             lookupService.macAddressToNode.resolves(node);
             node.discovered.resolves(true);
             taskProtocol.activeTaskExists.resolves();
+            taskProtocol.requestProfile.resolves();
 
             return messageHandler.isBootFileNameSent(packetData)
             .then(function(result) {
                 expect(result).to.equal(true);
+            });
+        });
+
+        it("should not send bootfile name if node is discovered, has active tasks, but no profiles",
+        function() {
+            lookupService.macAddressToNode.resolves(node);
+            node.discovered.resolves(true);
+            taskProtocol.activeTaskExists.resolves();
+            taskProtocol.requestProfile.rejects(new Error(''));
+
+            return messageHandler.isBootFileNameSent(packetData)
+            .then(function(result) {
+                expect(result).to.equal(false);
             });
         });
 
