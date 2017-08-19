@@ -1,0 +1,11 @@
+---
+platform: linux
+
+inputs:
+- name:  on-dhcp-proxy
+outputs:
+- name:  build 
+
+run:
+  path: "alpha/build_deb.sh"
+  dir: "on-dhcp-proxy"

@@ -1,0 +1,13 @@
+---
+platform: linux
+
+inputs:
+- name:  on-dhcp-proxy
+- name:  on-core
+- name: manifest-artifactory
+outputs:
+- name:  build 
+
+run:
+  path: "alpha/build_deb.sh"
+  dir: "on-dhcp-proxy"
