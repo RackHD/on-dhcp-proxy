@@ -1,0 +1,13 @@
+---
+platform: linux
+
+inputs:
+- name:  on-dhcp-proxy
+- name:  manifest-artifactory
+- name:  on-core-docker
+outputs:
+- name:  build 
+
+run:
+  path: "alpha/build_docker.sh"
+  dir: "on-dhcp-proxy"
